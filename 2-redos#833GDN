@@ -1,7 +1,7 @@
 #1
 #SAMBA
-
-
+#
+#
 #2
 #RAID
 #На HQ-SRV
@@ -41,16 +41,18 @@ df -h
 #На HQ-SRV
 #ls /raid/nfs
 #должен появиться test.txt
-
+#
 #4
-#Chrony
+#CHRONY
 #На ISP
 nano /etc/chrony.conf
-#закомментировать все строки, кроме первой
+#закомментировать все строки, кроме первой. должно быть так:
+#
 server ntp1.vniiftri.ru iburst prefer
 #server ntp2.vniiftri.ru iburst
 #server ntp3.vniiftri.ru iburst
 #server ntp4.vniiftri.ru iburst
+#
 #раскомментить, заменить значения параметров на:
 local stratum 5
 allow 0.0.0.0/0
@@ -68,8 +70,30 @@ systemctl restart chronyd
 #chronyc clients
 #На клиентах:
 #chronyc clients
-
+#
 #5
-#Веб-приложение в Docker
+#ВЕБ-ПРИЛОЖЕНИЕ В DOCKER (additional.iso)
+mkdir /bla
+mount /dev/sr1 /bla
+cp -r /bla /additional
+#
+systemctl enable docker --now 
+docker load < /additional/docker/site_latest.tar
+docker load < /additional/docker/mariadb_latest.tar
+docker images ls
+#
+# в файле web.yaml тут есть конфига. забираем ее 
+cat /DEMO_LAN/web.yaml >> web.yaml
+#
+docker-compose -f web.yaml up -d
+#
+docker exec -it db mysql -u root -p
+    CREATE DATABASE testdb;
+    CREATE USER 'test'@'%' IDENTIFIED BY 'P@ssw0rd';
+    GRANT ALL PRIVILEGES ON testdb.* TO 'test'@'%';
+    FLUSH PRIVILEGES;
+    \q
+docker-compose -f web.yaml stop -d
+docker-compose -f web.yaml up -d
 
 
