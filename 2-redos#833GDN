@@ -42,5 +42,34 @@ df -h
 #ls /raid/nfs
 #должен появиться test.txt
 
+#4
+#Chrony
+#На ISP
+nano /etc/chrony.conf
+#закомментировать все строки, кроме первой
+server ntp1.vniiftri.ru iburst prefer
+#server ntp2.vniiftri.ru iburst
+#server ntp3.vniiftri.ru iburst
+#server ntp4.vniiftri.ru iburst
+#раскомментить, заменить значения параметров на:
+local stratum 5
+allow 0.0.0.0/0
+#
+systemctl restart chronyd
+chronyc sources
+#На HQ-SRV, HQ-CLI, BR-SRV:
+nano /etc/chrony.conf
+#изменить в файле
+server 192.168.57.2 iburst
+#
+systemctl restart chronyd
+#Проверка:
+#На ISP
+#chronyc clients
+#На клиентах:
+#chronyc clients
+
+#5
+#Веб-приложение в Docker
 
 
