@@ -7,6 +7,12 @@
 #На HQ-SRV
 lsblk
 #находим диски по 1ГБ
+#создаем разделы на дисках где будет RAID, если их нет 
+fdisk /dev/sdb
+    n p 1 _ _ t td w
+fdisk /dev/sdc
+    n p 1 _ _ t td w
+#
 sudo mdadm --create /dev/md0 --level=0 --raid-devices=2 /dev/sdb /deb/sda
 sudo mkfs.ext4 /dev/md0
 sudo mkdir -p /raid
