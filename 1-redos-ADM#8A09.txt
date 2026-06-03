@@ -256,6 +256,14 @@ zone "30.168.192.in-addr.arpa" IN {
 type master;
 file "master/30.168.192.in-addr.arpa";
 };
+zone "1.16.172.in-addr.arpa" IN {
+type master;
+file "master/1.16.172.in-addr.arpa";
+};
+zone "2.16.172.in-addr.arpa" IN {
+type master;
+file "master/2.16.172.in-addr.arpa";
+};
 #
 sudo cp /var/named/named.localhost /var/named/sirius-exam.org
 nano /var/named/master/sirius-exam.org
@@ -324,7 +332,37 @@ $TTL 3600       ;
 @     IN      NS 192.168.30.2.
 2    IN      PTR br-srv.sirius-exam.org.
 #
-sudo chown -R root:named /var/named/master/30.168.192.in-addr.arpa /var/named/master/200.168.192.in-addr.arpa /var/named/master/100.168.192.in-addr.arpa /var/named/master/sirius-exam.org 
+sudo cp /var/named/named.localhost /var/named/1.16.172.in-addr.arpa
+nano /var/named/master/1.16.172.in-addr.arpa
+#изменить файл
+$TTL 3600       ;
+@     IN      SOA     sirius-exam.org. hq-srv.sirius-exam.org (
+      20060204        ; Serial
+      3600            ; Refresh
+      900             ; Retry
+      3600000         ; Expire
+      3600            ; Minimum
+      )
+@     IN      NS 192.168.100.2.
+1    IN      PTR isp.sirius-exam.org.
+2    IN      PTR hq-rtr.sirius-exam.org.
+#
+sudo cp /var/named/named.localhost /var/named/2.16.172.in-addr.arpa
+nano /var/named/master/2.16.172.in-addr.arpa
+#изменить файл
+$TTL 3600       ;
+@     IN      SOA     sirius-exam.org. hq-srv.sirius-exam.org (
+      20060204        ; Serial
+      3600            ; Refresh
+      900             ; Retry
+      3600000         ; Expire
+      3600            ; Minimum
+      )
+@     IN      NS 192.168.100.2.
+1    IN      PTR isp.sirius-exam.org.
+2    IN      PTR br-rtr.sirius-exam.org.
+#
+sudo chown -R root:named /var/named/master/30.168.192.in-addr.arpa /var/named/master/200.168.192.in-addr.arpa /var/named/master/100.168.192.in-addr.arpa /var/named/master/sirius-exam.org /var/named/2.16.172.in-addr.arpa /var/named/1.16.172.in-addr.arpa
 #
 sudo chmod 0640 /var/named/master/*
 systemctl restart named
