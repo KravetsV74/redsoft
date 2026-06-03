@@ -106,6 +106,10 @@ docker-compose -f web.yaml up -d
 #6
 #ВЕБ-ПРИЛОЖЕНИЕ APACHE (additional.iso)
 #HQ-SRV
+mkdir /bla
+mount /dev/sr1 /bla
+cp -r /bla /additional
+#
 dnf install httpd
 dnf install php php-mysqlnd
 dnf install mariadb-server mariadb
