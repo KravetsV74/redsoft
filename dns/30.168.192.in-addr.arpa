@@ -1,0 +1,10 @@
+$TTL 3600       ;
+@     IN      SOA     sirius-exam.org. hq-srv.sirius-exam.org (
+      20060204        ; Serial
+      3600            ; Refresh
+      900             ; Retry
+      3600000         ; Expire
+      3600            ; Minimum
+      )
+@     IN      NS 192.168.30.2
+2    IN      PTR br-srv.sirius-exam.org.
