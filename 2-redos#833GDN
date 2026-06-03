@@ -1,37 +1,35 @@
-#1
-#SAMBA
-#
-#
+
+
 #2
-#RAID
-#На HQ-SRV
+#RAID На HQ-SRV
+
 lsblk
 #находим диски по 1ГБ
 #создаем разделы на дисках где будет RAID, если их нет 
 fdisk /dev/sdb
-    n p 1 _ _ t td w
+    n p 1 _ _ t fd w
 fdisk /dev/sdc
-    n p 1 _ _ t td w
-#
-sudo mdadm --create /dev/md0 --level=0 --raid-devices=2 /dev/sdb /deb/sda
+    n p 1 _ _ t fd w
+
+sudo mdadm --create /dev/md0 --level=0 --raid-devices=2 /dev/sdb1 /deb/sdc1
 sudo mkfs.ext4 /dev/md0
 sudo mkdir -p /raid
 sudo mount /dev/md0 /raid
 echo '/dev/md0  /raid  ext4  defaults  0  0' | sudo tee -a /etc/fstab
 mdadm --detail --scan --verbose >> /etc/mdadm.conf
-#
+
 #3
-#NFS
+#NFS на HQ-SRV
 dnf install nfs4-acl-tools nfs-utils -y
 mkdir /raid/nfs
 chmod -R 777 /raid/nfs
 nano /etc/exports
 #прописать в файл
-/raid/nfs       192.168.100.0/27(rw,no_root_squash)
-#
+/raid/nfs       192.168.200.0/28(rw,no_root_squash)
+
 systemctl enable --now nfs-server.service
 exportfs -arv
-#
+
 #На HQ-CLI
 dnf install nfs-utils
 mkdir /mnt/nfs
@@ -44,56 +42,57 @@ df -h
 #Проверка
 #На клиенте
 #touch /mnt/nfs/test.txt
+
 #На HQ-SRV
 #ls /raid/nfs
 #должен появиться test.txt
-#
+
 #4
 #CHRONY
 #На ISP
 nano /etc/chrony.conf
 #закомментировать все строки, кроме первой. должно быть так:
-#
+
 server ntp1.vniiftri.ru iburst prefer
 #server ntp2.vniiftri.ru iburst
 #server ntp3.vniiftri.ru iburst
 #server ntp4.vniiftri.ru iburst
-#
+
 #раскомментить, заменить значения параметров на:
 local stratum 5
 allow 0.0.0.0/0
-#
+
 systemctl restart chronyd
 chronyc sources
 #На HQ-SRV, HQ-CLI, BR-SRV:
 nano /etc/chrony.conf
 #изменить в файле
 server 192.168.57.2 iburst
-#
+
 systemctl restart chronyd
 #Проверка:
 #На ISP
 #chronyc clients
 #На клиентах:
 #chronyc clients
-#
+
 #5
 #ВЕБ-ПРИЛОЖЕНИЕ В DOCKER (additional.iso)
 #BR-SRV
 mkdir /bla
 mount /dev/sr1 /bla
 cp -r /bla /additional
-#
+
 systemctl enable docker --now 
 docker load < /additional/docker/site_latest.tar
 docker load < /additional/docker/mariadb_latest.tar
 docker images ls
-#
+
 # в файле web.yaml тут есть конфига. забираем ее 
 cat /DEMO_LAN/web.yaml >> web.yaml
-#
+
 docker-compose -f web.yaml up -d
-#
+
 docker exec -it db mysql -u root -p
     CREATE DATABASE testdb;
     CREATE USER 'test'@'%' IDENTIFIED BY 'P@ssw0rd';
@@ -102,33 +101,33 @@ docker exec -it db mysql -u root -p
     \q
 docker-compose -f web.yaml stop -d
 docker-compose -f web.yaml up -d
-#
+
 #6
 #ВЕБ-ПРИЛОЖЕНИЕ APACHE (additional.iso)
 #HQ-SRV
 mkdir /bla
 mount /dev/sr1 /bla
 cp -r /bla /additional
-#
+
 dnf install httpd
 dnf install php php-mysqlnd
 dnf install mariadb-server mariadb
 systemctl enable mariadb --now
 #Устанавливаем пароль root для mariadb P@ssw0rd. Во всех пунктах вводим Y (Yes)
 mysql_secure_installation
-#
+
 mysql -u root -p
 CREATE DATABASE webdb;
 CREATE USER ‘web’@’%’ IDENTIFIED BY 'P@ssw0rd';
 GRANT ALL PRIVILEGES ON webdb.* TO 'web'@'%';
 FLUSH PRIVILEGES;
 \q
-#
+
 systemctl restart mariadb
 mysql webdb < /additional/web/dump.sql
 cp /additional/web/index.php /var/www/html/
 cp /additional/web/logo.png /var/www/html/
-#
+
 nano /var/www/html/index.php
 #меняем параметры:
 <?php
@@ -136,14 +135,13 @@ $servername = "localhost";
 $username = "web";
 $password = "P@ssw0rd";
 $dbname = "webdb";
-#
 systemctl restart httpd
-#
+
 #ПРОВЕРКА:
 #Заходим с HQ-CLI по адресу HQ-SRV: 192.168.100.2, без порта
 #Должен открыться сайт, можно создать пользователя
 
-#
+
 #7
 #Destination NAT
 #НА HQ-RTR
@@ -180,11 +178,12 @@ save
 #ПРОВЕРКА
 show ip nat destination pools
 show ip nat destination rulesets
-#
+
 #На BR-RTR
+
 configure
 nat destination
-  pool BR_WEB
+pool BR_WEB
     ip address 192.168.30.2
     ip port 8080
   exit
@@ -212,6 +211,7 @@ exit
 commit
 confirm
 save
+
 #ПРОВЕРКА
 show ip nat destination pools
 show ip nat destination rulesets
