@@ -280,6 +280,7 @@ nano /etc/nginx/conf.d/exam.conf
 auth_basic "Restricted area";
 auth_basic_user_file /etc/nginx/.htpasswd;
 #
+#
 nginx -t
 systemctl restart nginx
 #Проверка: 
