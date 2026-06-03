@@ -260,7 +260,9 @@ systemctl restart nginx
 #ПРОВЕРИТЬ, ЧТО В /var/named/master/sirius-exam.org есть строки
 web    IN    CNAME    isp.sirius-exam.org
 docker    IN    CNAME    isp.sirius-exam.org
-
+#и что на ISP в /etc/resolv.conf прописано:
+nameserver 192.168.100.2
+search sirius-exam.org
 #ПРОВЕРКА
 #НА ISP. В выводе должно быть много букв (html-страница поднятых сайтов)
 curl -H 'Host: web.sirius-exam.org' http://127.0.0.1
