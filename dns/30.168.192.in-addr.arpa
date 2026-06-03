@@ -6,5 +6,5 @@ $TTL 3600       ;
       3600000         ; Expire
       3600            ; Minimum
       )
-@     IN      NS 192.168.30.2
+@     IN      NS 192.168.30.2.
 2    IN      PTR br-srv.sirius-exam.org.
