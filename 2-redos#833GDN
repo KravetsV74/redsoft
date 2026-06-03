@@ -79,6 +79,7 @@ systemctl restart chronyd
 #
 #5
 #ВЕБ-ПРИЛОЖЕНИЕ В DOCKER (additional.iso)
+#BR-SRV
 mkdir /bla
 mount /dev/sr1 /bla
 cp -r /bla /additional
@@ -101,5 +102,48 @@ docker exec -it db mysql -u root -p
     \q
 docker-compose -f web.yaml stop -d
 docker-compose -f web.yaml up -d
+#
+#6
+#ВЕБ-ПРИЛОЖЕНИЕ APACHE (additional.iso)
+#HQ-SRV
+dnf install httpd
+dnf install php php-mysqlnd
+dnf install mariadb-server mariadb
+systemctl enable mariadb --now
+#Устанавливаем пароль root для mariadb P@ssw0rd. Во всех пунктах вводим Y (Yes)
+mysql_secure_installation
+#
+mysql -u root -p
+CREATE DATABASE webdb;
+CREATE USER ‘web’@’%’ IDENTIFIED BY 'P@ssw0rd';
+GRANT ALL PRIVILEGES ON webdb.* TO 'web'@'%';
+FLUSH PRIVILEGES;
+\q
+#
+systemctl restart mariadb
+mysql webdb < /additional/web/dump.sql
+cp /additional/web/index.php /var/www/html/
+cp /additional/web/logo.png /var/www/html/
+#
+nano /var/www/html/index.php
+#меняем параметры:
+<?php
+$servername = "localhost";
+$username = "web";
+$password = "P@ssw0rd";
+$dbname = "webdb";
+#
+systemctl restart httpd
+#
+#ПРОВЕРКА:
+#Заходим с HQ-CLI по адресу HQ-SRV: 192.168.100.2, без порта
+#Должен открыться сайт, можно создать пользователя
+
+#
+#9
+#
+
+
+
 
 
