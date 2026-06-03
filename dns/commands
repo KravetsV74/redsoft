@@ -5,19 +5,25 @@ systemctl status named
 
 #НА HQ-SRV
 nano /etc/named.conf
-#изменить параметры, прописаны в /dns/named.conf
-  
+#изменить параметры, полностью прописаны в /dns/named.conf
+cat named.conf > /etc/named.conf 
+
 #создать директорию /var/named/master
-#копировать все файлы с зонами
+#копировать все файлы с зонами:
+cp 100.168.192.in-addr.arpa /var/named/master
+cp 200.168.192.in-addr.arpa /var/named/master
+cp 30.168.192.in-addr.arpa /var/named/master
+cp sirius-exam.org /var/named/master
+
 #выполнить:
-sudo chown -R root:named /var/named/30.168.192.in-addr.arpa /var/named/200.168.192.in-addr.arpa /var/named/100.168.192.in-addr.arpa /var/named/sirius-exam.org 
+sudo chown -R root:named /var/named/master/30.168.192.in-addr.arpa /var/named/master/200.168.192.in-addr.arpa /var/named/master/100.168.192.in-addr.arpa /var/named/master/sirius-exam.org 
 sudo chmod 0640 /var/named/master/*
 systemctl restart named
-#
+
 nano /etc/systemd/resolved.conf
 #раскомментировать и заполнить “DNS=”
 DNS=192.168.100.2
-#
+
 systemctl restart systemd-resolved.service
 #НА ВСЕХ ОСТАЛЬНЫХ
 nano /etc/resolv.conf
