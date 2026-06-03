@@ -3,7 +3,7 @@ dnf install docker-ce docker-ce-cli docker-compose -y
 systemctl enable docker --now
 systemctl status docker
 mkdir /opt/nextcloud
-cat /redos/docker-compose.yml /opt/docker-compose.yml
+cat /redos/docker-compose.yml /opt/nextcloud/docker-compose.yml
 docker-compose -f docker-compose.yml up -d
 
 # 1.2 --- Сертификаты ---- 
