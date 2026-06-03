@@ -6,6 +6,6 @@ $TTL 3600       ;
       3600000         ; Expire
       3600            ; Minimum
       )
-@     IN      NS 192.168.100.2
+@     IN      NS 192.168.100.2.
 1    IN      PTR hq-rtr.sirius-exam.org.
 3    IN      PTR hq-cli.sirius-exam.org.
