@@ -15,3 +15,5 @@ hq-rtr        IN        A        192.168.200.1
 br-rtr        IN        A        192.168.30.1
 isp        IN        A        172.168.1.1
 isp        IN        A        172.168.2.1
+web        IN        CNAME        isp.sirius-exam.org
+docker        IN       CNAME       isp.sirius-exam.org
