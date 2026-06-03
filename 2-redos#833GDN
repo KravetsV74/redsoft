@@ -144,10 +144,83 @@ systemctl restart httpd
 #Должен открыться сайт, можно создать пользователя
 
 #
-#9
+#7
+#Destination NAT
+#НА HQ-RTR
+configure
+nat destination
+  pool HQ_WEB
+    ip address 192.168.100.2
+    ip port 80
+  exit
+  pool HQ_SSH
+    ip address 192.168.100.2
+    ip port 2026
+  exit
+  ruleset HQ_DNAT
+#интерфейс к ISP
+    from interface gigabitethernet 1/0/2
+    rule 10
+      match protocol tcp
+      match destination-port port-range 8080
+      action destination-nat pool HQ_WEB
+      enable
+    exit
+    rule 20
+      match protocol tcp
+      match destination-port port-range 2026
+      action destination-nat pool HQ_SSH
+      enable
+    exit
+  exit
+exit
+commit
+confirm
+save
+#ПРОВЕРКА
+show ip nat destination pools
+show ip nat destination rulesets
 #
-
-
+#На BR-RTR
+configure
+nat destination
+  pool BR_WEB
+    ip address 192.168.30.2
+    ip port 8080
+  exit
+  pool BR_SSH
+    ip address 192.168.30.2
+    ip port 2026
+  exit
+  ruleset BR_DNAT
+#интерфейс к ISP
+    from interface gigabitethernet 1/0/2
+    rule 10
+      match protocol tcp
+      match destination-port port-range 8080
+      action destination-nat pool BR_WEB
+      enable
+    exit
+    rule 20
+      match protocol tcp
+      match destination-port port-range 2026
+      action destination-nat pool BR_SSH
+      enable
+    exit
+  exit
+exit
+commit
+confirm
+save
+#ПРОВЕРКА
+show ip nat destination pools
+show ip nat destination rulesets
+#
+#Проверка с ISP
+#curl http://172.16.1.2:8080
+#curl http://172.16.2.2:8080
+#ssh -p 2026 sshuser@172.16.1.2
+#ssh -p 2026 sshuser@172.16.2.2
 
 
 
