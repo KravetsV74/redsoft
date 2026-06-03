@@ -270,5 +270,33 @@ curl -H 'Host: docker.sirius-exam.org' http://127.0.0.1
 #
 #
 #9
+#ВЕБ_АУТЕНТИФИКАЦИЯ
+#НА ISP
+htpasswd -c /etc/nginx/.htpasswd WEB
+# Дважды ввести: P@ssw0rd
+
+nano /etc/nginx/conf.d/exam.conf
+# Внутрь location / блока web.sirius-exam.org добавить:
+auth_basic "Restricted area";
+auth_basic_user_file /etc/nginx/.htpasswd;
+#
+nginx -t
+systemctl restart nginx
+#Проверка: 
+#должно вывести unauthorized access, 401 ошибка
+curl -I -H 'Host: web.sirius-exam.org' http://127.0.0.1
+#должно вывести html-код страницы
+curl -u WEB:P@ssw0rd -H 'Host: web.sirius-exam.org' http://127.0.0.1
+#
+#10
+#Яндекс браузер
+#НА HQ-CLI
+sudo dnf install -y yandex-browser-stable
+
+# Если пакет не найден:
+sudo dnf install -y yandex-browser-release
+sudo dnf install -y yandex-browser-stable
+
+rpm -qa | grep -i yandex
 
 
