@@ -31,3 +31,66 @@ include /etc/nginx/sites-enabled/*;
 sudo nginx -t
 sudo systemctl enable nginx
 sudo systemctl start nginx
+
+----- просмотр логов ----
+tail -f /var/log/nginx/access.log
+
+# После запроса с HQ-CLI остановить tail сочетанием Ctrl+C и проверить:
+grep '192.168.200.10' /var/log/nginx/access.log | tail
+
+
+
+# 2  ------- Управление пользователями  НА HQ-CLI -----
+sudo groupadd Work
+sudo groupadd Job
+sudo groupadd labor
+
+sudo useradd -m -G Work User1
+sudo useradd -m -G Work User2
+sudo useradd -m -G Job User3
+sudo useradd -m -G Job User4
+sudo useradd -m -G labor User5
+
+sudo mkdir -p /home/Folder/work_shared
+sudo mkdir -p /home/Folder/job_readonly
+
+sudo chown root:Work /home/Folder/work_shared
+sudo chmod 770 /home/Folder/work_shared
+
+sudo chown root:Job /home/Folder/job_readonly
+sudo chmod 750 /home/Folder/job_readonly
+
+ls -ld /home/Folder/work_shared /home/Folder/job_readonly
+
+
+# 3  ---------- Проверка прав на HQ-CLI -----
+sudo -u User1 touch /home/Folder/work_shared/user1.txt
+sudo -u User1 rm /home/Folder/work_shared/user1.txt
+
+echo "readonly" | sudo tee /home/Folder/job_readonly/readme.txt
+sudo chown root:Job /home/Folder/job_readonly/readme.txt
+sudo chmod 640 /home/Folder/job_readonly/readme.txt
+
+sudo -u User3 cat /home/Folder/job_readonly/readme.txt
+sudo -u User3 touch /home/Folder/job_readonly/user3.txt
+# Ожидается: Permission denied
+
+sudo -u User5 ls /home/Folder/work_shared
+# Ожидается: Permission denied
+sudo -u User5 ls /home/Folder/job_readonly
+# Ожидается: Permission denied
+
+
+----------------
+# BR-SRV
+docker ps
+nginx -t
+curl -kI https://127.0.0.1
+ls -l /etc/nginx/sites-enabled/
+
+# HQ-CLI
+curl -kI https://192.168.30.2 | grep -i strict-transport-security
+grep '192.168.200.10' /var/log/nginx/access.log | tail   # выполнить на BR-SRV
+ls -ld /home/Folder/work_shared /home/Folder/job_readonly
+
+
